@@ -1,0 +1,98 @@
+//
+//  SignUpView.swift
+//  Bloom
+//
+//  Created by Kylie Capes on 11/24/25.
+//
+
+import SwiftUI
+
+struct SignUpView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
+    
+    @State private var email = ""
+    @State private var password = ""
+    @State private var confirmPassword = ""
+    
+    let onSwitchToLogin: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            
+            // Header
+            VStack(spacing: 4) {
+                Text("Bloom")
+                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .foregroundColor(BloomTheme.accentPink)
+                
+                Text("Create your account")
+                    .font(.headline)
+                    .foregroundColor(.black.opacity(0.8))
+            }
+            .padding(.top, 40)
+            
+            // Fields
+            VStack(spacing: 16) {
+                TextField("Email", text: $email)
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(12)
+                
+                SecureField("Password", text: $password)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(12)
+                
+                SecureField("Confirm Password", text: $confirmPassword)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal)
+            
+            // Error
+            if let error = authViewModel.authError {
+                Text(error)
+                    .foregroundColor(.red)
+                    .font(.footnote)
+                    .padding(.horizontal)
+            }
+            
+            // Sign up button
+            Button {
+                guard password == confirmPassword else {
+                    authViewModel.authError = "Passwords do not match."
+                    return
+                }
+                authViewModel.signUp(email: email, password: password)
+            } label: {
+                if authViewModel.isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                } else {
+                    Text("Sign Up")
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+            }
+            .background(Color.black)
+            .foregroundColor(.white)
+            .cornerRadius(12)
+            .padding(.horizontal)
+            .padding(.top, 8)
+            
+            // Switch to login
+            Button(action: onSwitchToLogin) {
+                Text("Already have an account? Log in")
+                    .font(.footnote)
+                    .foregroundColor(.blue)
+            }
+            
+            Spacer()
+        }
+    }
+}
